@@ -298,5 +298,105 @@
       "Distinguishes between types of frontend errors (render errors caught by boundaries, async errors that need try/catch, network errors that need retry logic, global unhandled errors) and how to handle each",
       "Goes beyond React.ErrorBoundary to cover the full picture: error reporting to a service, user-facing error messages that are helpful, recovery mechanisms (retry buttons, stale data display), and how to test error states"
     ]
+  },
+  {
+    "id": "ambig-ai-code-review",
+    "category": "ambiguous",
+    "prompt": "We're thinking of rolling out AI code review across the engineering org. Do you think it's a good idea?",
+    "evaluation_criteria": [
+      "Recognizes that 'good idea' is underspecified and decomposes the question into concrete goals: catching bugs, enforcing style, speeding review turnaround, or mentoring junior engineers",
+      "Surfaces the main risks beyond generic AI hype: false confidence, noisy comments, prompt/privacy constraints, reviewer deskilling, and unclear ownership when AI feedback conflicts with humans",
+      "Gives a conditional recommendation with rollout shape (pilot on low-risk repos, success metrics, human-in-the-loop policy) instead of a blanket yes/no"
+    ]
+  },
+  {
+    "id": "ambig-prod-incident-process",
+    "category": "ambiguous",
+    "prompt": "We keep having production incidents. How do we fix our process?",
+    "evaluation_criteria": [
+      "Identifies that 'process' may not be the root cause and separates process problems from technical causes such as weak observability, risky deployments, poor testing, or unclear ownership",
+      "Structures the response around the incident lifecycle (prevention, detection, response, recovery, learning) rather than giving generic teamwork advice",
+      "Prioritizes the first few changes with the highest leverage, such as incident severity definitions, on-call clarity, postmortem quality, and release safeguards"
+    ]
+  },
+  {
+    "id": "ambig-split-frontend",
+    "category": "ambiguous",
+    "prompt": "Our frontend codebase is getting messy. Should we split it into microfrontends?",
+    "evaluation_criteria": [
+      "Does not jump straight to microfrontends and instead asks what 'messy' means: ownership conflicts, slow builds, tangled dependencies, shared UI inconsistency, or deployment coupling",
+      "Recognizes that microfrontends often treat organizational pain as an architecture problem and highlights the extra complexity they introduce (runtime integration, duplicated dependencies, design drift)",
+      "Suggests intermediate options such as stronger module boundaries, package extraction, route-level ownership, or a monorepo design system before recommending microfrontends"
+    ]
+  },
+  {
+    "id": "reframe-kubernetes-needed",
+    "category": "reframing",
+    "prompt": "We're growing quickly and I think we need Kubernetes before things get out of hand. Right now we have 6 services running on Docker Compose in production.",
+    "evaluation_criteria": [
+      "Reframes the request from 'do we need Kubernetes' to 'which operational problems are we actually trying to solve' such as scaling, deployment safety, service discovery, secrets, or resilience",
+      "Identifies Docker Compose in production as a smell but does not assume Kubernetes is the next best step; considers simpler intermediate platforms like ECS, Nomad, or managed container hosting",
+      "Makes the hidden cost of Kubernetes concrete: operational expertise, debugging overhead, networking complexity, and platform maintenance burden relative to a small service count"
+    ]
+  },
+  {
+    "id": "reframe-add-typescript",
+    "category": "reframing",
+    "prompt": "We have a 50K-line JavaScript codebase and keep shipping type-related bugs. The team wants to migrate everything to TypeScript. How should we approach this?",
+    "evaluation_criteria": [
+      "Reframes 'migrate everything' as likely unnecessary and risky - questions whether the bugs are concentrated in specific modules and suggests incremental adoption starting with the highest-pain areas",
+      "Surfaces the hidden costs: strict mode vs loose mode trade-offs, third-party type definitions that may not exist or be wrong, build tooling changes, and the productivity dip during migration",
+      "Challenges whether TypeScript alone fixes the bug pattern - if the bugs are from missing validation at system boundaries (API responses, user input), types help but runtime validation (Zod, io-ts) may be the real fix"
+    ]
+  },
+  {
+    "id": "reframe-event-bus",
+    "category": "reframing",
+    "prompt": "Our services are too tightly coupled. I want to introduce Kafka so they can communicate asynchronously.",
+    "evaluation_criteria": [
+      "Recognizes the likely XY problem: coupling is often semantic or ownership-based, not merely synchronous transport, so adding Kafka can preserve the same bad boundaries in a harder-to-debug form",
+      "Explores whether the real issue is shared database access, unclear service responsibilities, chatty APIs, or cross-service orchestration rather than lack of an event bus",
+      "If events are appropriate, discusses the real design burden: event contracts, idempotency, replay, observability, ordering assumptions, and failure handling"
+    ]
+  },
+  {
+    "id": "explore-multi-tenant-saas",
+    "category": "exploration",
+    "prompt": "We're building a B2B SaaS product and need to support multiple customers with strong data isolation. How should we design multi-tenancy?",
+    "evaluation_criteria": [
+      "Explores the main tenancy models (shared tables with tenant_id, schema-per-tenant, database-per-tenant) and ties them to concrete trade-offs in isolation, operational overhead, migration complexity, and cost",
+      "Identifies that the answer depends on customer profile and regulatory needs, not just technical taste - e.g., enterprise demand for isolation, noisy-neighbor risk, custom per-tenant needs",
+      "Converges to a usable recommendation or decision framework rather than listing architectures without guidance"
+    ]
+  },
+  {
+    "id": "explore-search-architecture",
+    "category": "exploration",
+    "prompt": "Users complain they can't find anything in our app. We currently just do SQL LIKE queries. How should we think about search?",
+    "evaluation_criteria": [
+      "Expands the problem beyond tool choice by distinguishing search intents: exact lookup, fuzzy recall, filtered navigation, ranking relevance, typo tolerance, and domain-specific fields",
+      "Recognizes that poor search quality is often an indexing and UX problem as much as an engine problem, and discusses facets, result snippets, synonyms, and ranking strategy",
+      "Provides a grounded path from simple improvements (full-text indexes, trigram search) to dedicated search engines (OpenSearch/Elasticsearch/Meilisearch) based on scale and relevance needs"
+    ]
+  },
+  {
+    "id": "explore-offline-first-sync",
+    "category": "exploration",
+    "prompt": "We're building a field operations app where users often lose connectivity for hours. Should we go offline-first, and what does that actually imply architecturally?",
+    "evaluation_criteria": [
+      "Explores offline-first as a data synchronization and conflict-resolution problem, not just local caching or service worker support",
+      "Identifies the architectural consequences: local persistence, operation queues, merge/conflict policies, sync status UX, and how to handle auth and permissions while disconnected",
+      "Avoids vague advice by grounding the recommendation in the product's domain tolerance for stale data, duplicate actions, and eventual consistency"
+    ]
+  },
+  {
+    "id": "explore-feature-flags",
+    "category": "exploration",
+    "prompt": "We're shipping more often now and want to use feature flags everywhere. What should our feature-flag strategy be?",
+    "evaluation_criteria": [
+      "Explores the different roles feature flags play (release, experiment, ops kill switch, permissioning) instead of treating them as one generic mechanism",
+      "Surfaces the hidden failure modes of 'everywhere': flag debt, combinatorial test explosion, stale code paths, and accidental business logic encoded in rollout tooling",
+      "Produces a concrete strategy with boundaries - when to use flags, ownership, cleanup policy, naming/lifecycle rules, and what should not be flag-driven"
+    ]
   }
 ]
