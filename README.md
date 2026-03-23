@@ -65,6 +65,34 @@ Replace `/YOUR/HOME/PATH` with your actual home directory path.
 
 Results may vary with smaller or less capable models.
 
+## Evaluation
+
+An A/B evaluation framework is included to measure whether the prompt actually improves response quality on open-ended tasks.
+
+### How it works
+
+1. **30 eval tasks** (`eval_tasks.json`) designed to favor HSFRM-style reasoning: ambiguous requirements, XY problems, conceptual exploration
+2. **Paired comparison**: each task is run twice per model — with and without the framework prompt
+3. **Blind LLM judge**: responses are randomly assigned as A/B and judged by a separate model against task-specific rubrics
+4. **Per-model results**: stored separately since the same prompt behaves differently across models and system prompt mechanisms
+
+### Running the eval
+
+```bash
+pip install anthropic openai
+
+# Test one model
+python eval/run_eval.py --models claude-sonnet-4-20250514 --judge claude-sonnet-4-20250514
+
+# Test multiple models
+python eval/run_eval.py --models claude-sonnet-4-20250514 gpt-4o --judge claude-sonnet-4-20250514
+
+# Run specific tasks only
+python eval/run_eval.py --models claude-sonnet-4-20250514 --judge claude-sonnet-4-20250514 --tasks ambig-make-faster reframe-add-caching
+```
+
+Results are saved per-task in `eval/results/<model>/` (gitignored). Each run resumes where it left off, so you can interrupt and continue.
+
 ## Honest Disclaimers
 
 - The visible mode header reliably appears. Whether the model truly follows the multi-stage internal reasoning as described is hard to verify — treat it as structured guidance, not a guaranteed cognitive architecture.

@@ -1,0 +1,302 @@
+[
+  {
+    "id": "ambig-make-faster",
+    "category": "ambiguous",
+    "prompt": "This endpoint is slow, can you make it faster?\n\n```python\n@app.get(\"/dashboard\")\nasync def dashboard(user_id: int):\n    user = await db.get_user(user_id)\n    orders = await db.get_orders(user_id)\n    recommendations = await ml_service.get_recommendations(user_id)\n    notifications = await db.get_notifications(user_id)\n    return {\"user\": user, \"orders\": orders, \"recommendations\": recommendations, \"notifications\": notifications}\n```",
+    "evaluation_criteria": [
+      "Identifies that 'slow' is undefined - asks or infers whether the bottleneck is latency, throughput, or perceived speed, rather than blindly optimizing",
+      "Recognizes the obvious concurrency win (asyncio.gather) but also considers whether all four calls are actually needed on every dashboard load (lazy loading, pagination, caching)",
+      "Explores the possibility that the real problem might be upstream (ML service latency, missing DB indexes) rather than just the endpoint code shape"
+    ]
+  },
+  {
+    "id": "ambig-review-this-pr",
+    "category": "ambiguous",
+    "prompt": "Can you review this? I'm not sure about it.\n\n```typescript\nexport function useAuth() {\n  const [user, setUser] = useState<User | null>(null);\n  const [loading, setLoading] = useState(true);\n\n  useEffect(() => {\n    const unsub = onAuthStateChanged(auth, (u) => {\n      setUser(u);\n      setLoading(false);\n    });\n    return unsub;\n  }, []);\n\n  const login = async (email: string, password: string) => {\n    await signInWithEmailAndPassword(auth, email, password);\n  };\n\n  const logout = async () => {\n    await signOut(auth);\n  };\n\n  return { user, loading, login, logout };\n}\n```",
+    "evaluation_criteria": [
+      "Infers that 'not sure about it' likely means uncertainty about correctness or best practices, not a request for line-by-line nitpicking",
+      "Identifies substantive concerns (no error handling on login/logout, no loading state during login action, potential race conditions) rather than only stylistic feedback",
+      "Addresses the hook's design scope - whether auth context should be a hook vs a provider pattern, given it will likely be used in multiple components"
+    ]
+  },
+  {
+    "id": "ambig-better-error-handling",
+    "category": "ambiguous",
+    "prompt": "I need better error handling in my app. Where do I start?",
+    "evaluation_criteria": [
+      "Recognizes the question is too broad to answer directly and asks clarifying questions or infers likely context (web app, API, CLI) before prescribing a solution",
+      "Distinguishes between different layers of error handling (validation errors, business logic errors, infrastructure errors, user-facing errors) rather than giving a single pattern",
+      "Provides a prioritized starting point rather than an overwhelming list of everything that could be done"
+    ]
+  },
+  {
+    "id": "ambig-clean-up-types",
+    "category": "ambiguous",
+    "prompt": "My TypeScript types are a mess. Here's a sample:\n\n```typescript\ninterface UserResponse {\n  id: number;\n  name: string;\n  email: string;\n  role: string;\n  permissions: string[];\n  team: { id: number; name: string; members: { id: number; name: string }[] };\n  settings: { theme: string; notifications: boolean; language: string; timezone: string };\n  subscription: { plan: string; status: string; expiresAt: string; features: string[] };\n}\n```\n\nHow should I fix this?",
+    "evaluation_criteria": [
+      "Infers that 'mess' likely means the types are too broad (string where unions/enums belong), too nested, or too monolithic - not just poorly formatted",
+      "Identifies the real issues: stringly-typed fields (role, plan, status, theme should be union types), deeply nested inline types that should be extracted, and date-as-string",
+      "Considers the broader question of whether this single mega-interface reflects a data modeling problem (API returning too much, missing domain boundaries) rather than just a typing problem"
+    ]
+  },
+  {
+    "id": "ambig-microservices-or-not",
+    "category": "ambiguous",
+    "prompt": "We're a team of 4 and our monolith is getting hard to work with. Should we move to microservices?",
+    "evaluation_criteria": [
+      "Does not immediately endorse or reject microservices - instead probes what 'hard to work with' actually means (slow deploys, merge conflicts, tangled dependencies, slow tests, unclear ownership)",
+      "Recognizes that for a team of 4, full microservices is almost certainly premature and suggests intermediate options (modular monolith, service extraction of one pain point)",
+      "Surfaces the hidden costs of microservices (operational complexity, distributed debugging, data consistency) that the team likely hasn't considered"
+    ]
+  },
+  {
+    "id": "ambig-test-coverage",
+    "category": "ambiguous",
+    "prompt": "Our test coverage is at 40%. Management wants 80%. What's the fastest way to get there?",
+    "evaluation_criteria": [
+      "Reframes the goal: 80% coverage is a proxy metric, and 'fastest way' hints at a potential quality trap (writing low-value tests to hit a number)",
+      "Distinguishes between meaningful coverage strategies (testing critical paths, error handling, edge cases) vs coverage-padding (testing getters/setters, trivial code)",
+      "Addresses the organizational tension - suggests how to communicate with management about what coverage actually measures and propose a more nuanced target"
+    ]
+  },
+  {
+    "id": "ambig-make-scalable",
+    "category": "ambiguous",
+    "prompt": "I need to make my Flask app scalable. Right now it handles maybe 100 concurrent users.",
+    "evaluation_criteria": [
+      "Asks or infers what 'scalable' means in this context - 1K users? 100K? Are they hitting CPU, memory, DB, or I/O limits?",
+      "Considers whether the bottleneck is actually Flask itself (likely not at 100 users) vs database queries, external API calls, or deployment configuration (single process, no async worker)",
+      "Avoids jumping to 'rewrite in Go/Rust' and instead suggests pragmatic steps: proper WSGI server (gunicorn), connection pooling, caching, profiling to find the actual bottleneck"
+    ]
+  },
+  {
+    "id": "ambig-refactor-this-class",
+    "category": "ambiguous",
+    "prompt": "This class is too big, can you refactor it?\n\n```java\npublic class OrderService {\n    // ... 40+ methods handling:\n    // - order creation and validation\n    // - payment processing\n    // - inventory checks\n    // - email notifications\n    // - PDF invoice generation\n    // - shipping label creation\n    // - refund processing\n    // - order analytics/reporting\n}\n```",
+    "evaluation_criteria": [
+      "Recognizes that 'too big' is a symptom and identifies the actual problem: this class violates SRP by handling multiple distinct business concerns",
+      "Proposes a decomposition strategy based on business domain boundaries (OrderCreation, PaymentService, NotificationService, etc.) not arbitrary method grouping",
+      "Addresses the practical migration path - how to refactor incrementally without a big-bang rewrite, considering existing callers and test coverage"
+    ]
+  },
+  {
+    "id": "ambig-secure-my-api",
+    "category": "ambiguous",
+    "prompt": "How do I secure my REST API? It's a Node/Express app with JWT auth already.",
+    "evaluation_criteria": [
+      "Recognizes that 'secure' is extremely broad and structures the response by threat category (authentication, authorization, input validation, transport, rate limiting, data exposure) rather than dumping a random list",
+      "Asks or infers what kind of data the API handles and who the clients are, since security requirements differ dramatically between internal tools and public-facing APIs",
+      "Goes beyond the obvious (HTTPS, CORS, helmet) to address JWT-specific concerns: token storage, refresh token rotation, token revocation strategy, payload size"
+    ]
+  },
+  {
+    "id": "ambig-migrate-database",
+    "category": "ambiguous",
+    "prompt": "We want to migrate from MongoDB to Postgres. How long will it take?",
+    "evaluation_criteria": [
+      "Does not give a fake time estimate - instead identifies the dimensions that determine effort: schema complexity, data volume, application query patterns, ORM usage, number of services hitting the DB",
+      "Surfaces the hidden work: schema design (document-to-relational mapping), query rewriting, migration scripting, data validation, dual-write period, rollback plan",
+      "Asks why they want to migrate, since the reason (consistency needs, joins, tooling, team familiarity) shapes the migration strategy and priority"
+    ]
+  },
+  {
+    "id": "reframe-add-caching",
+    "category": "reframing",
+    "prompt": "I need to add Redis caching to speed up my API. Here's the slow endpoint:\n\n```python\n@app.get(\"/products\")\nasync def get_products(category: str):\n    products = await db.query(\"SELECT * FROM products WHERE category = $1\", category)\n    return products\n```",
+    "evaluation_criteria": [
+      "Questions whether caching is the right solution - a simple query like this should be fast with proper indexing; the problem is likely a missing index on the category column",
+      "If caching is still warranted, addresses the harder questions: invalidation strategy, cache-aside vs read-through, TTL selection, cache stampede prevention",
+      "Identifies that SELECT * is itself a performance issue if the table has many columns, and suggests selecting only needed fields"
+    ]
+  },
+  {
+    "id": "reframe-rewrite-in-rust",
+    "category": "reframing",
+    "prompt": "Our Python data pipeline is too slow, processing 10GB of CSV files takes 6 hours. I'm thinking we should rewrite the core in Rust. The pipeline reads CSVs, does some filtering and aggregation, then writes to Parquet.",
+    "evaluation_criteria": [
+      "Identifies this as an XY problem: the task described (filter, aggregate, write parquet) is exactly what Polars, DuckDB, or pandas with proper chunking solves without leaving Python",
+      "Surfaces the likely real bottleneck: reading 10GB into memory at once, row-by-row processing, or not using columnar/vectorized operations",
+      "Acknowledges Rust is a valid long-term option but reframes the cost-benefit: a Polars rewrite might take hours vs weeks for Rust, with comparable performance for this workload"
+    ]
+  },
+  {
+    "id": "reframe-add-websockets",
+    "category": "reframing",
+    "prompt": "I need to add WebSocket support to my app so users can see when their file upload is done processing. Currently they just keep refreshing the page.",
+    "evaluation_criteria": [
+      "Recognizes that WebSockets might be overengineered for this use case - server-sent events (SSE) or even simple polling with exponential backoff would be simpler for one-directional status updates",
+      "Considers the infrastructure implications: WebSocket support requires sticky sessions or a pub/sub layer if running multiple server instances, which the user may not have considered",
+      "Addresses the actual UX problem: the user needs a progress indicator, which could also be solved with a simple polling endpoint returning processing status"
+    ]
+  },
+  {
+    "id": "reframe-orm-slow",
+    "category": "reframing",
+    "prompt": "SQLAlchemy is really slow for our batch operations. We're inserting 100K rows and it takes forever. Should we switch to a different ORM?",
+    "evaluation_criteria": [
+      "Identifies that the problem is almost certainly not SQLAlchemy itself but how it's being used - likely inserting rows one at a time in a loop with individual commits",
+      "Reframes from 'which ORM' to 'how to do bulk operations': bulk_insert_mappings, core INSERT with executemany, COPY command, or raw SQL for true bulk loads",
+      "Surfaces that switching ORMs won't fix the fundamental issue and would introduce massive migration cost for zero benefit if the usage pattern stays the same"
+    ]
+  },
+  {
+    "id": "reframe-singleton-pattern",
+    "category": "reframing",
+    "prompt": "What's the best way to implement a singleton in Python? I need to make sure only one database connection exists in my app.",
+    "evaluation_criteria": [
+      "Challenges the premise: a single database connection is almost never what you want - it creates a bottleneck and fails under concurrency; a connection pool is the correct pattern",
+      "Explains why the singleton concern is misplaced: the real goal is managed lifecycle and shared access, which dependency injection or a connection pool handles better",
+      "If the user truly needs a singleton (e.g., for a connection pool manager), provides a simple solution (module-level instance) rather than an over-engineered metaclass pattern"
+    ]
+  },
+  {
+    "id": "reframe-graphql-migration",
+    "category": "reframing",
+    "prompt": "We have 12 REST endpoints and we keep running into over-fetching and under-fetching. The frontend team wants us to switch to GraphQL. Should we?",
+    "evaluation_criteria": [
+      "Probes whether the over/under-fetching problem is better solved by adding sparse fieldsets (JSON:API style), query parameters for field selection, or BFF (backend-for-frontend) patterns on the existing REST API",
+      "Surfaces the hidden costs of GraphQL: N+1 query problems, authorization complexity at the field level, caching difficulty, schema maintenance, learning curve for the whole team",
+      "Reframes the 12-endpoint scope: for a small API surface, GraphQL's overhead may exceed its benefits; the real question is whether the data graph is complex enough to warrant it"
+    ]
+  },
+  {
+    "id": "reframe-docker-in-prod",
+    "category": "reframing",
+    "prompt": "I containerized my app with Docker. Now I need to figure out how to run it in production. Should I set up a Kubernetes cluster?",
+    "evaluation_criteria": [
+      "Identifies the massive leap from 'I have a Docker container' to 'I need Kubernetes' and asks about scale, team size, and operational expertise",
+      "Suggests simpler production deployment options first: a single VM with docker-compose, managed container services (ECS, Cloud Run, Fly.io), or a simple PaaS",
+      "Surfaces what Kubernetes actually requires: networking knowledge, YAML management, monitoring, persistent storage, ingress controllers - likely more ops work than the application itself for a small team"
+    ]
+  },
+  {
+    "id": "reframe-event-sourcing",
+    "category": "reframing",
+    "prompt": "I'm building a todo app for my side project and I think event sourcing would be a good fit since I want undo/redo support. How should I set it up?",
+    "evaluation_criteria": [
+      "Gently reframes: event sourcing for a todo app is extreme over-engineering; undo/redo is a UI concern typically handled with a command pattern or simple state stack on the client side",
+      "Distinguishes between event sourcing (infrastructure pattern for audit trails, temporal queries, complex domains) and undo/redo (UI/UX pattern that lives in application state)",
+      "Provides the simpler solution: a client-side undo stack or a version history column, then mentions when event sourcing would actually be warranted"
+    ]
+  },
+  {
+    "id": "reframe-fix-memory-leak",
+    "category": "reframing",
+    "prompt": "My Node.js app's memory keeps growing. I think there's a memory leak. I added `global.gc()` calls but it didn't help. How do I find the leak?",
+    "evaluation_criteria": [
+      "Questions whether this is actually a leak vs normal behavior: Node's V8 heap grows in steps and may not release memory back to the OS even after GC; RSS growth alone doesn't confirm a leak",
+      "Redirects from manual GC (which is a red herring) to proper diagnostic tools: heap snapshots, --inspect with Chrome DevTools, clinic.js, or process.memoryUsage() tracking over time",
+      "Identifies common real causes: unclosed event listeners, growing caches without eviction, closures holding references, streams not being consumed - asks about the app's architecture to narrow down"
+    ]
+  },
+  {
+    "id": "reframe-env-variables",
+    "category": "reframing",
+    "prompt": "How do I securely store API keys in my React app? I'm using environment variables with REACT_APP_ prefix but I'm worried about security.",
+    "evaluation_criteria": [
+      "Immediately surfaces the critical misunderstanding: REACT_APP_ environment variables are bundled into the client-side JavaScript and are fully visible to anyone who views source - they are not secure at all",
+      "Reframes the architecture: secrets that must stay secret cannot live in a frontend app; they need a backend proxy or serverless function that holds the key and makes the API call on behalf of the client",
+      "Distinguishes between keys that are safe to expose (publishable Stripe key, Firebase config) and keys that must never be in client code (secret API keys, database credentials)"
+    ]
+  },
+  {
+    "id": "explore-state-management",
+    "category": "exploration",
+    "prompt": "I'm starting a new React project - a project management tool like a simplified Jira. What state management approach should I use? I've used Redux before but it felt like too much boilerplate.",
+    "evaluation_criteria": [
+      "Explores the state landscape by distinguishing types of state (server state, client UI state, form state, URL state) rather than recommending a single tool for everything",
+      "Recognizes that for a data-heavy app like a PM tool, server state (React Query / TanStack Query) is likely the dominant concern, which dramatically reduces the need for client-side state management",
+      "Provides a concrete recommendation with reasoning rather than a 'it depends' non-answer, while acknowledging trade-offs (e.g., Zustand for remaining client state, or just React context for simple cases)"
+    ]
+  },
+  {
+    "id": "explore-monorepo-strategy",
+    "category": "exploration",
+    "prompt": "We have a React frontend, a Node API, and a shared types package. Right now they're in separate repos and keeping types in sync is painful. We're considering a monorepo. What should we know?",
+    "evaluation_criteria": [
+      "Addresses the specific pain point (type synchronization) directly - this is the strongest argument for a monorepo in their case and should be the anchor of the discussion",
+      "Covers the real trade-offs: tooling complexity (Turborepo vs Nx vs pnpm workspaces), CI/CD changes, build ordering, IDE performance, learning curve vs the ongoing tax of cross-repo coordination",
+      "Considers alternatives to a full monorepo that solve the specific problem: publishing the types package to a private registry, git submodules, or a code generation approach from an API schema"
+    ]
+  },
+  {
+    "id": "explore-auth-architecture",
+    "category": "exploration",
+    "prompt": "I need to add authentication to my app. It's a SaaS with a Next.js frontend and a separate Python API backend. Users should be able to sign up with email or Google. What's the right approach?",
+    "evaluation_criteria": [
+      "Maps out the architectural decision space: auth provider (Auth0, Clerk, Supabase Auth, Firebase Auth, roll your own) vs the token flow between Next.js and the Python API",
+      "Addresses the specific complexity of a split frontend/backend: where tokens are validated, how the Python API trusts the Next.js-issued session, CORS and cookie considerations",
+      "Provides a concrete recommended path with reasoning (e.g., 'use NextAuth with JWT strategy, verify the JWT in your Python API middleware') rather than just listing all possible options"
+    ]
+  },
+  {
+    "id": "explore-testing-strategy",
+    "category": "exploration",
+    "prompt": "I'm building a payment processing module that integrates with Stripe. It handles subscriptions, invoicing, and usage-based billing. How should I approach testing this?",
+    "evaluation_criteria": [
+      "Structures testing by layer: unit tests for business logic (proration calculations, plan transitions), integration tests against Stripe's test mode, and end-to-end tests for critical flows (subscribe, upgrade, cancel)",
+      "Addresses the unique challenges of testing payment code: idempotency, webhook verification, race conditions, testing failure scenarios (declined cards, network timeouts), and Stripe's test clock feature",
+      "Discusses the testing boundary problem: where to mock Stripe vs use their test API, and how to make tests both reliable and fast (mock for unit tests, real Stripe test mode for integration)"
+    ]
+  },
+  {
+    "id": "explore-api-versioning",
+    "category": "exploration",
+    "prompt": "We're about to launch our public API and I want to get versioning right from the start. We have mobile apps that we can't force-update. What's the best versioning strategy?",
+    "evaluation_criteria": [
+      "Explores the main approaches (URL path /v1/, header-based, query param) with their actual trade-offs for this specific case, not just theoretical pros/cons",
+      "Addresses the harder question that versioning alone doesn't solve: backward compatibility strategy, deprecation policy, how to evolve schemas without breaking old clients, and the role of feature flags vs versions",
+      "Considers the mobile-specific constraint seriously: mobile clients persist for years, so the strategy needs to support long-lived old versions, graceful degradation, and a way to eventually sunset old versions"
+    ]
+  },
+  {
+    "id": "explore-realtime-architecture",
+    "category": "exploration",
+    "prompt": "I want to build a collaborative document editor (like a simple Google Docs). Two users should be able to edit the same document at the same time. I know the basics of React and Node. What's involved?",
+    "evaluation_criteria": [
+      "Gives an honest assessment of complexity: real-time collaborative editing is one of the hardest problems in software; a naive approach will have data loss and conflicts",
+      "Explains the core algorithmic challenge (OT vs CRDT) at an accessible level and recommends practical libraries (Yjs, Automerge, Liveblocks) rather than suggesting they implement from scratch",
+      "Maps out the full stack of concerns: transport layer (WebSockets), conflict resolution, persistence, cursor presence, offline support, and helps the user scope a realistic MVP"
+    ]
+  },
+  {
+    "id": "explore-logging-observability",
+    "category": "exploration",
+    "prompt": "Our production app has been having intermittent issues that we can't reproduce. When something goes wrong, we basically have no idea what happened. We just have console.log statements. What should we set up?",
+    "evaluation_criteria": [
+      "Frames observability as three pillars (logs, metrics, traces) and explains how each helps with different debugging scenarios rather than just recommending a logging library",
+      "Prioritizes practically: structured logging with correlation IDs is the highest-impact first step, followed by error tracking (Sentry), then APM/tracing for complex issues",
+      "Addresses the 'intermittent issues' problem specifically: suggests what to capture (request context, timing, error stack traces, downstream service responses) and how correlation IDs help trace a request across services"
+    ]
+  },
+  {
+    "id": "explore-data-modeling",
+    "category": "exploration",
+    "prompt": "I'm building a permissions system. Users can belong to organizations, organizations have projects, and I need role-based access control. Users can have different roles in different projects. How should I model this in Postgres?",
+    "evaluation_criteria": [
+      "Explores the schema design with clear entity relationships: users, organizations, projects, roles, and the join tables (org_members, project_members with role columns or a separate role assignment table)",
+      "Addresses the harder design questions: should roles be an enum or a separate table with permissions? How to handle role hierarchies? Where to put the authorization check logic (query-level, middleware, or policy engine)?",
+      "Considers practical querying patterns: how to efficiently answer 'can user X do action Y on project Z' without N+1 queries, and whether to denormalize or use recursive CTEs for inherited permissions"
+    ]
+  },
+  {
+    "id": "explore-ci-cd-design",
+    "category": "exploration",
+    "prompt": "We're setting up CI/CD from scratch for a TypeScript monorepo (React frontend + Node backend + shared libs). We're on GitHub. What should the pipeline look like?",
+    "evaluation_criteria": [
+      "Designs a pipeline that respects monorepo concerns: affected-project detection (only build/test what changed), dependency-aware build ordering, and shared caching",
+      "Covers the full pipeline lifecycle: lint, type-check, unit tests, build, integration tests, preview deployments for PRs, and production deployment with appropriate gates and rollback strategy",
+      "Addresses practical GitHub Actions specifics: caching node_modules, parallelizing jobs, managing secrets, environment-specific deployments, and cost considerations (build minutes)"
+    ]
+  },
+  {
+    "id": "explore-error-boundaries",
+    "category": "exploration",
+    "prompt": "I keep hearing about 'graceful degradation' in frontend apps. My React app just shows a white screen when something crashes. What's the right way to think about error handling in a complex React app?",
+    "evaluation_criteria": [
+      "Provides a conceptual framework: error boundaries at different granularity levels (page-level, feature-level, component-level) with different fallback strategies for each",
+      "Distinguishes between types of frontend errors (render errors caught by boundaries, async errors that need try/catch, network errors that need retry logic, global unhandled errors) and how to handle each",
+      "Goes beyond React.ErrorBoundary to cover the full picture: error reporting to a service, user-facing error messages that are helpful, recovery mechanisms (retry buttons, stale data display), and how to test error states"
+    ]
+  }
+]
