@@ -15,6 +15,12 @@ HSFRM: dominant
 HDPRM: guardrail
 ```
 
+### In action (OpenAI Codex)
+
+![Mode Arbiter running in OpenAI Codex](assets/codex_runtime.png)
+
+The framework selects `HSFRM: dominant` across multiple turns of a creative story-writing workflow, guiding the model to read specifications, confirm deliverables, and verify branch state before generating — structured reasoning, not just formatted output.
+
 ## Key Features
 
 - **Task shape sensing** — the model evaluates each task across dimensions like ambiguity pressure, evidence pressure, and convergence need to pick the right mode
