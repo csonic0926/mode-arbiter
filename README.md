@@ -88,8 +88,9 @@ client.chat.completions.create(
 
 - Claude Opus 4.6 / Sonnet 4.6 (Claude Code)
 - GPT-5.4 / GPT-4o (OpenAI Codex)
+- Qwen-3.5 122B (community-reported positive results)
 
-Should work with any instruction-following model. Results may vary with smaller or less capable models.
+Should work with any instruction-following model with strong reasoning capabilities.
 
 ## Evaluation
 
@@ -121,7 +122,7 @@ Results are saved per-task in `eval/results/<model>/` (gitignored). Each run res
 
 ## Honest Disclaimers
 
-- **Small models may not benefit.** In early A/B testing with Gemini 3.1 Flash-Lite, the framework produced no measurable improvement. The model could parse the mode labels (it correctly chose `HSFRM: dominant` for reframing tasks) but could not execute the reasoning the mode demands — e.g., it failed to challenge a user's premise even when HSFRM was active. Worse, the ~2K-token system prompt consumed context budget that smaller models can't spare. **If your model struggles with nuanced instructions, this prompt may hurt more than it helps.**
+- **Lightweight / lite-tier models may not benefit.** In early A/B testing with Gemini 3.1 Flash-Lite, the framework produced no measurable improvement. The model could parse the mode labels (it correctly chose `HSFRM: dominant` for reframing tasks) but could not execute the reasoning the mode demands — e.g., it failed to challenge a user's premise even when HSFRM was active. Worse, the ~2K-token system prompt consumed context budget that lite-tier models can't spare. This is not about parameter count — Qwen-3.5 122B handles it well — but about whether the model has strong enough instruction-following and reasoning to act on the framework's guidance, not just format its output. **If your model can label the modes but can't change its actual reasoning behavior, this prompt is overhead without benefit.**
 - The visible mode header reliably appears across model sizes. Whether the model truly follows the multi-stage internal reasoning as described is hard to verify — treat it as structured guidance, not a guaranteed cognitive architecture.
 - This was built for one person's workflow and preferences. You will likely want to adapt it.
 - The XML tag structure is intentional — it helps models parse structured instructions more reliably.
