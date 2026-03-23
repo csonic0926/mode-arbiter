@@ -7,11 +7,13 @@ multiple models, then uses a separate judge model to do blind paired comparison.
 Results are stored per-model in eval/results/<model_name>/.
 
 Usage:
-    pip install anthropic openai
+    pip install anthropic openai google-genai
     export ANTHROPIC_API_KEY=...
     export OPENAI_API_KEY=...
-    python eval/run_eval.py --models claude-sonnet-4-20250514 gpt-4o --judge claude-sonnet-4-20250514
-    python eval/run_eval.py --models claude-sonnet-4-20250514 --judge claude-sonnet-4-20250514 --tasks ambig-make-faster ambig-review-this-pr
+    export GEMINI_API_KEY=...
+    python eval/run_eval.py --models gemini-2.5-flash --judge gemini-2.5-flash
+    python eval/run_eval.py --models claude-sonnet-4-20250514 gpt-4o gemini-2.5-pro --judge claude-sonnet-4-20250514
+    python eval/run_eval.py --models gemini-2.5-flash --judge gemini-2.5-flash --tasks ambig-make-faster reframe-add-caching
 """
 
 import argparse
@@ -51,10 +53,26 @@ def call_openai(model: str, system: str | None, user_prompt: str) -> str:
     return resp.choices[0].message.content
 
 
+def call_gemini(model: str, system: str | None, user_prompt: str) -> str:
+    from google import genai
+    client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+    config: dict = {"max_output_tokens": 4096}
+    if system:
+        config["system_instruction"] = system
+    resp = client.models.generate_content(
+        model=model,
+        contents=user_prompt,
+        config=config,
+    )
+    return resp.text
+
+
 def call_model(model: str, system: str | None, user_prompt: str) -> str:
     """Route to the right provider based on model name."""
     if model.startswith("claude") or model.startswith("anthropic/"):
         return call_anthropic(model.removeprefix("anthropic/"), system, user_prompt)
+    elif model.startswith("gemini"):
+        return call_gemini(model, system, user_prompt)
     else:
         return call_openai(model, system, user_prompt)
 

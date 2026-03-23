@@ -105,16 +105,16 @@ An A/B evaluation framework is included to measure whether the prompt actually i
 ### Running the eval
 
 ```bash
-pip install anthropic openai
+pip install anthropic openai google-genai
 
-# Test one model
-python eval/run_eval.py --models claude-sonnet-4-20250514 --judge claude-sonnet-4-20250514
+# Test Gemini
+python eval/run_eval.py --models gemini-2.5-flash --judge gemini-2.5-flash
 
 # Test multiple models
-python eval/run_eval.py --models claude-sonnet-4-20250514 gpt-4o --judge claude-sonnet-4-20250514
+python eval/run_eval.py --models claude-sonnet-4-20250514 gpt-4o gemini-2.5-pro --judge claude-sonnet-4-20250514
 
 # Run specific tasks only
-python eval/run_eval.py --models claude-sonnet-4-20250514 --judge claude-sonnet-4-20250514 --tasks ambig-make-faster reframe-add-caching
+python eval/run_eval.py --models gemini-2.5-flash --judge gemini-2.5-flash --tasks ambig-make-faster reframe-add-caching
 ```
 
 Results are saved per-task in `eval/results/<model>/` (gitignored). Each run resumes where it left off, so you can interrupt and continue.
