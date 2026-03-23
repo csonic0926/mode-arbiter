@@ -121,7 +121,8 @@ Results are saved per-task in `eval/results/<model>/` (gitignored). Each run res
 
 ## Honest Disclaimers
 
-- The visible mode header reliably appears. Whether the model truly follows the multi-stage internal reasoning as described is hard to verify — treat it as structured guidance, not a guaranteed cognitive architecture.
+- **Small models may not benefit.** In early A/B testing with Gemini 3.1 Flash-Lite, the framework produced no measurable improvement. The model could parse the mode labels (it correctly chose `HSFRM: dominant` for reframing tasks) but could not execute the reasoning the mode demands — e.g., it failed to challenge a user's premise even when HSFRM was active. Worse, the ~2K-token system prompt consumed context budget that smaller models can't spare. **If your model struggles with nuanced instructions, this prompt may hurt more than it helps.**
+- The visible mode header reliably appears across model sizes. Whether the model truly follows the multi-stage internal reasoning as described is hard to verify — treat it as structured guidance, not a guaranteed cognitive architecture.
 - This was built for one person's workflow and preferences. You will likely want to adapt it.
 - The XML tag structure is intentional — it helps models parse structured instructions more reliably.
 
