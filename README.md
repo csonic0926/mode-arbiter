@@ -1,6 +1,6 @@
 # Mode Arbiter
 
-A dual-mode reasoning framework for LLM coding assistants. It instructs the model to dynamically choose between two cognitive postures — exploratory semantic reasoning and disciplined convergent reasoning — based on the shape of each task.
+A dual-mode reasoning framework that can be used as a system prompt for any LLM. It instructs the model to dynamically choose between two cognitive postures — exploratory semantic reasoning and disciplined convergent reasoning — based on the shape of each task.
 
 ## The Two Modes
 
@@ -24,7 +24,11 @@ HDPRM: guardrail
 
 ## Setup
 
-The core prompt is in [`mode_arbiter.md`](mode_arbiter.md). Below are setup instructions for supported tools.
+The core prompt is in [`mode_arbiter.md`](mode_arbiter.md). Use it as a system prompt in any LLM that supports one.
+
+### General Usage
+
+Paste the contents of `mode_arbiter.md` into the system prompt field of your preferred tool — ChatGPT custom instructions, API calls, or any interface that lets you set a system-level prompt.
 
 ### Claude Code
 
@@ -58,12 +62,34 @@ developer_instructions = "Always follow the model_instructions_file first!"
 
 Replace `/YOUR/HOME/PATH` with your actual home directory path.
 
+### API Usage
+
+Works with any chat completion API that accepts a system message:
+
+```python
+# Anthropic
+client.messages.create(
+    model="claude-sonnet-4-20250514",
+    system=open("mode_arbiter.md").read(),
+    messages=[{"role": "user", "content": "your prompt"}],
+)
+
+# OpenAI
+client.chat.completions.create(
+    model="gpt-4o",
+    messages=[
+        {"role": "system", "content": open("mode_arbiter.md").read()},
+        {"role": "user", "content": "your prompt"},
+    ],
+)
+```
+
 ## Tested With
 
-- Claude Opus 4.6 (Claude Code)
-- GPT-5.4 (OpenAI Codex)
+- Claude Opus 4.6 / Sonnet 4.6 (Claude Code)
+- GPT-5.4 / GPT-4o (OpenAI Codex)
 
-Results may vary with smaller or less capable models.
+Should work with any instruction-following model. Results may vary with smaller or less capable models.
 
 ## Evaluation
 
