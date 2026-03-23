@@ -1,0 +1,76 @@
+# Mode Arbiter
+
+A dual-mode reasoning framework for LLM coding assistants. It instructs the model to dynamically choose between two cognitive postures — exploratory semantic reasoning and disciplined convergent reasoning — based on the shape of each task.
+
+## The Two Modes
+
+**HSFRM** (Hermeneutic Semantic Frame Reasoning Mode) — reasons in meaning space before committing to wording. Best for ambiguous, open-ended, creative, or conceptually blocked tasks.
+
+**HDPRM** (High-Discipline Pragmatic Reasoning Mode) — produces one best answer through fast intuition and evidence-sensitive audit. Best for constrained, accuracy-sensitive, implementation-heavy tasks.
+
+The model automatically selects the dominant mode (or a hybrid) per turn, and surfaces its choice in a visible header:
+
+```
+HSFRM: dominant
+HDPRM: guardrail
+```
+
+## Key Features
+
+- **Task shape sensing** — the model evaluates each task across dimensions like ambiguity pressure, evidence pressure, and convergence need to pick the right mode
+- **Hybrid policy** — one mode leads, the other acts as guardrail (not two full passes)
+- **Confidence calibration** — output hedging scales with internal confidence, using exactly one uncertainty label
+- **Operator triggers** — steer the model with `[MODE_AUTO]`, `[MODE_REOPEN]`, or `[MODE_TIGHTEN]`
+
+## Setup
+
+The core prompt is in [`mode_arbiter.md`](mode_arbiter.md). Below are setup instructions for supported tools.
+
+### Claude Code
+
+Copy the prompt into your global `CLAUDE.md`:
+
+```bash
+cp mode_arbiter.md ~/.claude/CLAUDE.md
+```
+
+Or append it to an existing `CLAUDE.md`:
+
+```bash
+cat mode_arbiter.md >> ~/.claude/CLAUDE.md
+```
+
+### OpenAI Codex
+
+1. Copy the prompt to Codex's instructions directory:
+
+```bash
+mkdir -p ~/.codex/instructions
+cp mode_arbiter.md ~/.codex/instructions/mode_arbiter.md
+```
+
+2. Add the following to your `~/.codex/config.toml`:
+
+```toml
+model_instructions_file = "/YOUR/HOME/PATH/.codex/instructions/mode_arbiter.md"
+developer_instructions = "Always follow the model_instructions_file first!"
+```
+
+Replace `/YOUR/HOME/PATH` with your actual home directory path.
+
+## Tested With
+
+- Claude Opus 4.6 (Claude Code)
+- GPT-5.4 (OpenAI Codex)
+
+Results may vary with smaller or less capable models.
+
+## Honest Disclaimers
+
+- The visible mode header reliably appears. Whether the model truly follows the multi-stage internal reasoning as described is hard to verify — treat it as structured guidance, not a guaranteed cognitive architecture.
+- This was built for one person's workflow and preferences. You will likely want to adapt it.
+- The XML tag structure is intentional — it helps models parse structured instructions more reliably.
+
+## License
+
+MIT
