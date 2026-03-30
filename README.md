@@ -30,11 +30,16 @@ The framework selects `HSFRM: dominant` across multiple turns of a creative stor
 
 ## Setup
 
-The core prompt is in [`mode_arbiter.md`](mode_arbiter.md). Use it as a system prompt in any LLM that supports one.
+This repo now ships two prompt variants:
+
+- [`mode_arbiter.md`](mode_arbiter.md) — the portable baseline version for general LLM use
+- [`mode_arbiter_codex.md`](mode_arbiter_codex.md) — the Codex-tuned version with stronger reconnaissance, tool-calling, and task-closure policies
+
+If you're not sure which one to use, start with `mode_arbiter.md`. If you're using OpenAI Codex and want the prompt to more aggressively inspect context before acting, use `mode_arbiter_codex.md`.
 
 ### General Usage
 
-Paste the contents of `mode_arbiter.md` into the system prompt field of your preferred tool — ChatGPT custom instructions, API calls, or any interface that lets you set a system-level prompt.
+Paste the contents of the variant you want into the system prompt field of your preferred tool — ChatGPT custom instructions, API calls, or any interface that lets you set a system-level prompt.
 
 ### Claude Code
 
@@ -52,21 +57,33 @@ cat mode_arbiter.md >> ~/.claude/CLAUDE.md
 
 ### OpenAI Codex
 
+For Codex, prefer the Codex-tuned variant:
+
 1. Copy the prompt to Codex's instructions directory:
 
 ```bash
 mkdir -p ~/.codex/instructions
-cp mode_arbiter.md ~/.codex/instructions/mode_arbiter.md
+cp mode_arbiter_codex.md ~/.codex/instructions/mode_arbiter_codex.md
 ```
 
 2. Add the following to your `~/.codex/config.toml`:
 
 ```toml
-model_instructions_file = "/YOUR/HOME/PATH/.codex/instructions/mode_arbiter.md"
+model_instructions_file = "/YOUR/HOME/PATH/.codex/instructions/mode_arbiter_codex.md"
 developer_instructions = "Always follow the model_instructions_file first!"
 ```
 
 Replace `/YOUR/HOME/PATH` with your actual home directory path.
+
+### What is different in the Codex version?
+
+`mode_arbiter_codex.md` extends the baseline prompt with three extra policy blocks:
+
+- `task_start_recon_policy`
+- `tool_calling_policy`
+- `unfinished_task_and_closure_policy`
+
+These additions are meant for agentic environments where the model can inspect files, run tools, and prematurely stop after a partial read. They push Codex to gather a bit more evidence before acting, use tools as part of understanding, and avoid turning unfinished work into a vague status update.
 
 ### API Usage
 
