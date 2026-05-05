@@ -1,6 +1,6 @@
 # Mode Arbiter for Codex
 
-## 作者的話
+## Author's Note
 
 > If you miss the human-computer interaction experience of Claude Code back when Opus 4.6 was still available, you can try this Codex model instruction.
 
