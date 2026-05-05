@@ -1,154 +1,135 @@
-# Mode Arbiter
+# Mode Arbiter for Codex
 
-A dual-mode reasoning framework that can be used as a system prompt for any LLM. It instructs the model to dynamically choose between two cognitive postures — exploratory semantic reasoning and disciplined convergent reasoning — based on the shape of each task.
+## 作者的話
 
-## The Two Modes
+> If you miss the human-computer interaction experience of Claude Code back when Opus 4.6 was still available, you can try this Codex model instruction.
 
-**HSFRM** (Hermeneutic Semantic Frame Reasoning Mode) — reasons in meaning space before committing to wording. Best for ambiguous, open-ended, creative, or conceptually blocked tasks.
+## What this is
 
-**HDPRM** (High-Discipline Pragmatic Reasoning Mode) — produces one best answer through fast intuition and evidence-sensitive audit. Best for constrained, accuracy-sensitive, implementation-heavy tasks.
+Mode Arbiter for Codex is a public, installable instruction pack for local OpenAI Codex users.
 
-The model automatically selects the dominant mode (or a hybrid) per turn, and surfaces its choice in a visible header:
+It is intentionally **not** a general LLM prompt collection and not a multi-agent framework. It installs one Codex model instruction file plus four small Codex skills that make local Codex behave more deliberately:
 
+- calibrate the user's real intent before executing;
+- choose between exploratory reasoning and disciplined convergence per turn;
+- inspect local context before acting on non-trivial tasks;
+- avoid premature "next steps" when the task is not actually done;
+- keep final user-facing replies compressed and useful.
+
+## Installed files
+
+The installer writes these files into your local Codex config area:
+
+```text
+~/.codex/instructions/mode_arbiter_codex.md
+~/.codex/skills/codex-user-intent-task-calibration/SKILL.md
+~/.codex/skills/codex-dialogue-state-compression/SKILL.md
+~/.codex/skills/codex-conversation-mode/SKILL.md
+~/.codex/skills/codex-continuation-phase-gate/SKILL.md
 ```
+
+It also updates `~/.codex/config.toml` with:
+
+```toml
+model_instructions_file = "~/.codex/instructions/mode_arbiter_codex.md"
+```
+
+If `~/.codex/config.toml` already exists, the installer creates a timestamped backup before editing it.
+
+## Quick install
+
+```bash
+git clone https://github.com/csonic0926/mode-arbiter.git
+cd mode-arbiter
+./install.sh
+```
+
+Then restart Codex or open a new Codex session.
+
+## Manual install
+
+```bash
+mkdir -p ~/.codex/instructions
+mkdir -p ~/.codex/skills
+
+cp mode_arbiter_codex.md ~/.codex/instructions/mode_arbiter_codex.md
+cp -R skills/codex-user-intent-task-calibration ~/.codex/skills/
+cp -R skills/codex-dialogue-state-compression ~/.codex/skills/
+cp -R skills/codex-conversation-mode ~/.codex/skills/
+cp -R skills/codex-continuation-phase-gate ~/.codex/skills/
+```
+
+Then add this to `~/.codex/config.toml`:
+
+```toml
+model_instructions_file = "~/.codex/instructions/mode_arbiter_codex.md"
+```
+
+## The two modes
+
+The instruction pack makes Codex surface a small mode header at the start of every response:
+
+```text
 HSFRM: dominant
 HDPRM: guardrail
 ```
 
-### In action (OpenAI Codex)
+**HSFRM** is the exploratory mode. It helps with ambiguous, open-ended, creative, or reframing-heavy work.
 
-![Mode Arbiter running in OpenAI Codex](assets/codex_runtime.png)
+**HDPRM** is the disciplined convergence mode. It helps with constrained, implementation-heavy, evidence-bound, or correctness-sensitive work.
 
-The framework selects `HSFRM: dominant` across multiple turns of a creative story-writing workflow, guiding the model to read specifications, confirm deliverables, and verify branch state before generating — structured reasoning, not just formatted output.
+Most useful Codex work is hybrid: one mode leads and the other acts as a guardrail.
 
-## Key Features
+## Included skills
 
-- **Task shape sensing** — the model evaluates each task across dimensions like ambiguity pressure, evidence pressure, and convergence need to pick the right mode
-- **Hybrid policy** — one mode leads, the other acts as guardrail (not two full passes)
-- **Confidence calibration** — output hedging scales with internal confidence, using exactly one uncertainty label
-- **Operator triggers** — steer the model with `[MODE_AUTO]`, `[MODE_REOPEN]`, or `[MODE_TIGHTEN]`
+### `codex-user-intent-task-calibration`
 
-## Setup
+Runs at the start of a new or redirected real user request. It separates explicit evidence from likely intent, then routes the turn as either execution or conversation.
 
-This repo now ships two prompt variants:
+### `codex-dialogue-state-compression`
 
-- [`mode_arbiter.md`](mode_arbiter.md) — the portable baseline version for general LLM use
-- [`mode_arbiter_codex.md`](mode_arbiter_codex.md) — the Codex-tuned version with stronger reconnaissance, tool-calling, and task-closure policies
+Runs for final user-facing replies after execution tasks. It removes filler and keeps only sentences that move the conversation forward.
 
-If you're not sure which one to use, start with `mode_arbiter.md`. If you're using OpenAI Codex and want the prompt to more aggressively inspect context before acting, use `mode_arbiter_codex.md`.
+### `codex-conversation-mode`
 
-### General Usage
+Runs when the request is conversation rather than execution. It keeps Codex from turning casual dialogue into a report.
 
-Paste the contents of the variant you want into the system prompt field of your preferred tool — ChatGPT custom instructions, API calls, or any interface that lets you set a system-level prompt.
+### `codex-continuation-phase-gate`
 
-### Claude Code
+Runs for intermediate executor-facing outputs inside unresolved Codex task loops. It prevents half-finished inspection from being presented as a final answer.
 
-Copy the prompt into your global `CLAUDE.md`:
+## Updating
 
 ```bash
-cp mode_arbiter.md ~/.claude/CLAUDE.md
+cd mode-arbiter
+git pull
+./install.sh
 ```
 
-Or append it to an existing `CLAUDE.md`:
+## Uninstalling
+
+Remove the installed files:
 
 ```bash
-cat mode_arbiter.md >> ~/.claude/CLAUDE.md
+rm -f ~/.codex/instructions/mode_arbiter_codex.md
+rm -rf ~/.codex/skills/codex-user-intent-task-calibration
+rm -rf ~/.codex/skills/codex-dialogue-state-compression
+rm -rf ~/.codex/skills/codex-conversation-mode
+rm -rf ~/.codex/skills/codex-continuation-phase-gate
 ```
 
-### OpenAI Codex
-
-For Codex, prefer the Codex-tuned variant:
-
-1. Copy the prompt to Codex's instructions directory:
-
-```bash
-mkdir -p ~/.codex/instructions
-cp mode_arbiter_codex.md ~/.codex/instructions/mode_arbiter_codex.md
-```
-
-2. Add the following to your `~/.codex/config.toml`:
+Then remove or change this line in `~/.codex/config.toml`:
 
 ```toml
-model_instructions_file = "/YOUR/HOME/PATH/.codex/instructions/mode_arbiter_codex.md"
-developer_instructions = "Always follow the model_instructions_file first!"
+model_instructions_file = "~/.codex/instructions/mode_arbiter_codex.md"
 ```
 
-Replace `/YOUR/HOME/PATH` with your actual home directory path.
+## Notes and limitations
 
-### What is different in the Codex version?
-
-`mode_arbiter_codex.md` extends the baseline prompt with three extra policy blocks:
-
-- `task_start_recon_policy`
-- `tool_calling_policy`
-- `unfinished_task_and_closure_policy`
-
-These additions are meant for agentic environments where the model can inspect files, run tools, and prematurely stop after a partial read. They push Codex to gather a bit more evidence before acting, use tools as part of understanding, and avoid turning unfinished work into a vague status update.
-
-### API Usage
-
-Works with any chat completion API that accepts a system message:
-
-```python
-# Anthropic
-client.messages.create(
-    model="claude-sonnet-4-20250514",
-    system=open("mode_arbiter.md").read(),
-    messages=[{"role": "user", "content": "your prompt"}],
-)
-
-# OpenAI
-client.chat.completions.create(
-    model="gpt-4o",
-    messages=[
-        {"role": "system", "content": open("mode_arbiter.md").read()},
-        {"role": "user", "content": "your prompt"},
-    ],
-)
-```
-
-## Tested With
-
-- Claude Opus 4.6 / Sonnet 4.6 (Claude Code)
-- GPT-5.4 / GPT-4o (OpenAI Codex)
-- Qwen-3.5 122B (community-reported positive results)
-
-Should work with any instruction-following model with strong reasoning capabilities.
-
-## Evaluation
-
-An A/B evaluation framework is included to measure whether the prompt actually improves response quality on open-ended tasks.
-
-### How it works
-
-1. **30 eval tasks** (`eval_tasks.json`) designed to favor HSFRM-style reasoning: ambiguous requirements, XY problems, conceptual exploration
-2. **Paired comparison**: each task is run twice per model — with and without the framework prompt
-3. **Blind LLM judge**: responses are randomly assigned as A/B and judged by a separate model against task-specific rubrics
-4. **Per-model results**: stored separately since the same prompt behaves differently across models and system prompt mechanisms
-
-### Running the eval
-
-```bash
-pip install anthropic openai google-genai
-
-# Test Gemini
-python eval/run_eval.py --models gemini-2.5-flash --judge gemini-2.5-flash
-
-# Test multiple models
-python eval/run_eval.py --models claude-sonnet-4-20250514 gpt-4o gemini-2.5-pro --judge claude-sonnet-4-20250514
-
-# Run specific tasks only
-python eval/run_eval.py --models gemini-2.5-flash --judge gemini-2.5-flash --tasks ambig-make-faster reframe-add-caching
-```
-
-Results are saved per-task in `eval/results/<model>/` (gitignored). Each run resumes where it left off, so you can interrupt and continue.
-
-## Honest Disclaimers
-
-- **Lightweight / lite-tier models may not benefit.** In early A/B testing with Gemini 3.1 Flash-Lite, the framework produced no measurable improvement. The model could parse the mode labels (it correctly chose `HSFRM: dominant` for reframing tasks) but could not execute the reasoning the mode demands — e.g., it failed to challenge a user's premise even when HSFRM was active. Worse, the ~2K-token system prompt consumed context budget that lite-tier models can't spare. This is not about parameter count — Qwen-3.5 122B handles it well — but about whether the model has strong enough instruction-following and reasoning to act on the framework's guidance, not just format its output. **If your model can label the modes but can't change its actual reasoning behavior, this prompt is overhead without benefit.**
-- The visible mode header reliably appears across model sizes. Whether the model truly follows the multi-stage internal reasoning as described is hard to verify — treat it as structured guidance, not a guaranteed cognitive architecture.
-- This was built for one person's workflow and preferences. You will likely want to adapt it.
-- The XML tag structure is intentional — it helps models parse structured instructions more reliably.
+- This repo targets local OpenAI Codex workflows.
+- It assumes Codex can read `~/.codex/instructions` and `~/.codex/skills`.
+- It does not try to support Claude Code, ChatGPT custom instructions, Anthropic API, Gemini, or generic agent frameworks.
+- The visible mode header is intentional. If you dislike that style, edit the `visible_mode_header` block in `mode_arbiter_codex.md`.
 
 ## License
 
