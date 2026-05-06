@@ -7,8 +7,8 @@ For the final user-facing response, compress all candidate response material int
 
 Keep only:
 
-* A direct restatement that shows what the user is really saying: “You’re saying — …”
-* One sentence at a real turning point: “Wait — you’re right. I had it backwards.”
+* A direct restatement that shows what the user is really saying
+* One sentence at a real turning point
 * One sharp, short question that returns the ball to the user.
 * Demonstrated understanding, not phrases like “I understand.”
 
