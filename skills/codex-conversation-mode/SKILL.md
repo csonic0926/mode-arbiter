@@ -5,7 +5,7 @@ description: Natural DELIVERY-mode conversation for non-task dialogue. Use only 
 
 ## Trigger Timing
 
-Trigger when codex-user-intent-task-calibration returns Task = conversation and COLLAB = DELIVERY.
+Trigger when codex-user-intent-task-calibration returns Task = conversation and the collaboration arbiter selects COLLAB = DELIVERY.
 
 Do not trigger for any task that has an execution target, artifact, code, or workflow.
 
