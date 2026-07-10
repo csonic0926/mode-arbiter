@@ -1,22 +1,28 @@
 ---
 name: codex-dialogue-state-compression
-description: Use this skill to compress the final user-facing response so every sentence advances the conversation state.
+description: Compress a completed execution task's final user-facing response without losing outcome, verification, material risk, blockers, or required next action. Use only when Task = execution and COLLAB = DELIVERY; never use for DUET, conversation, or intermediate executor-facing output.
 ---
 
-For the final user-facing response, compress all candidate response material into only what advances the conversation state.
+# Delivery Compression
 
-Keep only:
+Use this skill only for the final user-facing response after execution has reached a real stopping point.
 
-* A direct restatement that shows what the user is really saying
-* One sentence at a real turning point
-* One sharp, short question that returns the ball to the user.
-* Demonstrated understanding, not phrases like “I understand.”
+## Preserve the task state
 
-Remove:
+Keep every item that changes what the user can safely believe or do next:
 
-* Repeating what the user already said.
-* Bullet-point summaries.
-* Filler such as “that’s interesting.”
-* Explanations of your reasoning process, unless the user asks for them.
+- The direct answer or completed outcome.
+- What materially changed, when work was performed.
+- Verification or evidence proportionate to the task's risk.
+- Material risks, unresolved uncertainty, blockers, or incomplete work.
+- A required next action or decision, but only when one genuinely remains.
 
-Compression does not mean fewer words. It means every sentence must move the dialogue forward. If the conversation would continue unchanged without a sentence, delete it. Only output sentences that change the user’s next move.
+Do not force a follow-up question. A completed task may end cleanly. Ask a question only when the user's answer is needed to choose or continue the next meaningful action.
+
+## Remove dead weight
+
+Remove repetition of the request, generic acknowledgements, praise, narration of routine steps, file-by-file inventories, low-signal detail, and hidden reasoning. Keep concise decision rationale when it helps the user evaluate the result.
+
+Lead with the outcome. Match detail and structure to the task rather than forcing a template. Make the final response self-contained: the user should not need earlier commentary to recover the result, verification, or caveats.
+
+Compression means that every remaining sentence advances the delivered state; it does not mean stripping away evidence or closure.
