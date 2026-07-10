@@ -6,15 +6,15 @@
 
 ## What this is
 
-Mode Arbiter for Codex is a public, installable instruction pack for local OpenAI Codex users.
+Mode Arbiter for Codex is a public, installable instruction pack for local OpenAI Codex users. It intentionally replaces the built-in model instructions with its own reasoning and collaboration contract.
 
-It is intentionally **not** a general LLM prompt collection and not a multi-agent framework. It installs one Codex model instruction file plus four small Codex skills that make local Codex behave more deliberately:
+It is intentionally **not** a general LLM prompt collection and not a multi-agent framework. It installs one Codex model instruction file plus five small Codex skills that make local Codex:
 
-- calibrate the user's real intent before executing;
-- choose between exploratory reasoning and disciplined convergence per turn;
-- inspect local context before acting on non-trivial tasks;
-- avoid premature "next steps" when the task is not actually done;
-- keep final user-facing replies compressed and useful.
+- use the inferred user intent, rather than the literal request alone, as the boundary for proactive exploration;
+- choose independently between exploratory reasoning and disciplined convergence;
+- choose independently between delivering a stable result and entering reciprocal DUET co-discovery;
+- preserve natural conversation without turning every exchange into a report;
+- keep completed execution replies concise without deleting verification, risks, or closure.
 
 ## Installed files
 
@@ -26,6 +26,7 @@ The installer writes these files into your local Codex config area:
 ~/.codex/skills/codex-dialogue-state-compression/SKILL.md
 ~/.codex/skills/codex-conversation-mode/SKILL.md
 ~/.codex/skills/codex-continuation-phase-gate/SKILL.md
+~/.codex/skills/codex-duet-mode/SKILL.md
 ```
 
 It also updates `~/.codex/config.toml` with:
@@ -34,7 +35,7 @@ It also updates `~/.codex/config.toml` with:
 model_instructions_file = "~/.codex/instructions/mode_arbiter_codex.md"
 ```
 
-If `~/.codex/config.toml` already exists, the installer creates a timestamped backup before editing it.
+If `~/.codex/config.toml` already exists, the installer updates only the `model_instructions_file` entry and does not create backup artifacts.
 
 ## Quick install
 
@@ -57,6 +58,7 @@ cp -R skills/codex-user-intent-task-calibration ~/.codex/skills/
 cp -R skills/codex-dialogue-state-compression ~/.codex/skills/
 cp -R skills/codex-conversation-mode ~/.codex/skills/
 cp -R skills/codex-continuation-phase-gate ~/.codex/skills/
+cp -R skills/codex-duet-mode ~/.codex/skills/
 ```
 
 Then add this to `~/.codex/config.toml`:
@@ -65,13 +67,14 @@ Then add this to `~/.codex/config.toml`:
 model_instructions_file = "~/.codex/instructions/mode_arbiter_codex.md"
 ```
 
-## The two modes
+## Two independent axes
 
-The instruction pack makes Codex surface a small mode header at the start of every response:
+The instruction pack selects one reasoning posture and one collaboration posture on every turn. Codex surfaces both axes in a small header:
 
 ```text
 HSFRM: dominant
 HDPRM: guardrail
+COLLAB: duet
 ```
 
 **HSFRM** is the exploratory mode. It helps with ambiguous, open-ended, creative, or reframing-heavy work.
@@ -80,23 +83,31 @@ HDPRM: guardrail
 
 Most useful Codex work is hybrid: one mode leads and the other acts as a guardrail.
 
+**DELIVERY** returns a sufficiently stable result clearly and self-containedly.
+
+**DUET** makes reciprocal human-model exchange part of the reasoning process. Codex surfaces selected unfinished associations, hypotheses, tensions, or causal gaps so human input can change the frame before it closes. It does not expose raw chain-of-thought, and it does not hard-code human and model strengths as fixed capability boundaries.
+
 ## Included skills
 
 ### `codex-user-intent-task-calibration`
 
-Runs at the start of a new or redirected real user request. It separates explicit evidence from likely intent, then routes the turn as either execution or conversation.
+Runs at the start of a new or redirected real user request. It separates explicit evidence from likely intent and classifies the workflow as execution or conversation without making that label the boundary of proactive thought.
 
 ### `codex-dialogue-state-compression`
 
-Runs for final user-facing replies after execution tasks. It removes filler and keeps only sentences that move the conversation forward.
+Runs for final user-facing replies when Task = execution and COLLAB = DELIVERY. It removes dead weight while preserving the outcome, verification, material risks, blockers, and any genuinely required next action.
 
 ### `codex-conversation-mode`
 
-Runs when the request is conversation rather than execution. It keeps Codex from turning casual dialogue into a report.
+Runs when Task = conversation and COLLAB = DELIVERY. It keeps Codex from turning ordinary casual dialogue into a report.
 
 ### `codex-continuation-phase-gate`
 
 Runs for intermediate executor-facing outputs inside unresolved Codex task loops. It prevents half-finished inspection from being presented as a final answer.
+
+### `codex-duet-mode`
+
+Runs whenever COLLAB = DUET, regardless of whether the topic is conversation- or execution-shaped. It uses short turns to exchange selected frontier material and seek the smallest human input that can distinguish live paths without forcing a premature deliverable.
 
 ## Updating
 
@@ -116,6 +127,7 @@ rm -rf ~/.codex/skills/codex-user-intent-task-calibration
 rm -rf ~/.codex/skills/codex-dialogue-state-compression
 rm -rf ~/.codex/skills/codex-conversation-mode
 rm -rf ~/.codex/skills/codex-continuation-phase-gate
+rm -rf ~/.codex/skills/codex-duet-mode
 ```
 
 Then remove or change this line in `~/.codex/config.toml`:
@@ -129,7 +141,7 @@ model_instructions_file = "~/.codex/instructions/mode_arbiter_codex.md"
 - This repo targets local OpenAI Codex workflows.
 - It assumes Codex can read `~/.codex/instructions` and `~/.codex/skills`.
 - It does not try to support Claude Code, ChatGPT custom instructions, Anthropic API, Gemini, or generic agent frameworks.
-- The visible mode header is intentional. If you dislike that style, edit the `visible_mode_header` block in `mode_arbiter_codex.md`.
+- The visible three-line mode header is intentional. If you dislike that style, edit the `visible_mode_header` block in `mode_arbiter_codex.md`.
 
 ## License
 

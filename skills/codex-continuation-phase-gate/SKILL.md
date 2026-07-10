@@ -9,6 +9,8 @@ Trigger only during an unresolved Codex execution loop when the current output i
 
 Do not trigger for any user-facing final response, completion summary, clarification request, or stop-point report.
 
+Do not trigger for a user-facing DUET turn. A DUET response may be intentionally unfinished, but it is still a real exchange with the user rather than an executor-facing continuation marker. Do not select, reset, or transition COLLAB inside this skill; preserve the arbiter's current collaboration state.
+
 If the phase is ambiguous, treat it as final-user-facing and do not trigger.
 
 ## Output Rule
