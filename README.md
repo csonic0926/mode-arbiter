@@ -12,6 +12,7 @@ It is intentionally **not** a general LLM prompt collection and not a multi-agen
 
 - calibrate the user's real intent before executing;
 - choose between exploratory reasoning and disciplined convergence per turn;
+- reconstruct mathematical objects, state ownership, and causal invariants before changing formal systems;
 - inspect local context before acting on non-trivial tasks;
 - avoid premature "next steps" when the task is not actually done;
 - keep final user-facing replies compressed and useful.
