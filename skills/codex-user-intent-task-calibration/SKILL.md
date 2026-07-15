@@ -32,6 +32,16 @@ Task = corrected execution target based on Found + Inferred.
 
 The calibrated task may refine the user request, but must not contradict explicit user instructions.
 
+## Artifact Scope Rule
+
+Trigger this rule only when execution could affect more than one similar artifact.
+
+Before expanding the task beyond the requested target, identify each candidate artifact's consumer or audience, source-of-truth or deployment role, and whether divergence may be intentional.
+
+Treat scope expansion as Inferred unless the user explicitly requested synchronization. Similar content, names, or locations do not establish shared ownership or justify synchronized changes.
+
+Apply the change to multiple artifacts only when its rationale holds independently for every consumer or the user explicitly requests propagation.
+
 ## Routing
 
 After calibration, determine the task type:
